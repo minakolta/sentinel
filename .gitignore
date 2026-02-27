@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -59,6 +60,7 @@ dist/
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # IDE
 .vscode/
