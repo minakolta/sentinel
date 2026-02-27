@@ -14,6 +14,45 @@ Multi-tenant infrastructure & license tracking system. Fully configurable via ad
 | Database | SQLite via Prisma (`/data/sentinel.db`) |
 | Auth | NextAuth.js (Google Provider, domain-restricted) |
 | Testing | Vitest (≥80% coverage) |
+| Project Mgmt | GitHub Issues + MCP |
+
+---
+
+## GitHub Project Management (MCP)
+
+Use the **github-official** MCP server to manage issues and track progress.
+
+### Issue Operations
+```typescript
+// List issues by phase
+mcp_mcp_docker_list_issues({ owner, repo, labels: ["Phase 2"], state: "OPEN" })
+
+// Close completed issues
+mcp_mcp_docker_issue_write({ owner, repo, issue_number, method: "update", state: "closed", state_reason: "completed" })
+
+// Add completion comment
+mcp_mcp_docker_add_issue_comment({ owner, repo, issue_number, body: "Completed in commit xyz" })
+
+// Search issues
+mcp_mcp_docker_search_issues({ owner, repo, query: "label:phase:2-settings state:open" })
+```
+
+### Phase Labels
+| Label | Description |
+|-------|-------------|
+| `phase:1-foundation` | Next.js, Prisma, Auth, Encryption |
+| `phase:2-settings` | Settings service, Lookups API |
+| `phase:3-services` | Audit service, validation schemas |
+| `phase:4-crud` | Entity CRUD operations |
+| `phase:5-notifications` | Email/Slack alerts |
+| `phase:6-admin` | Admin UI features |
+| `phase:7-polish` | Tests, security, CI/CD |
+
+### Workflow
+1. Before starting work: Check open issues for current phase
+2. After completing task: Close issue with `state_reason: "completed"`
+3. Add comment referencing commit hash
+4. Push code and update README status
 
 ---
 
