@@ -1,6 +1,6 @@
 # Sentinel — Copilot Instructions
 
-Multi-tenant infrastructure & license tracking system. Fully configurable via admin UI, no hardcoded business logic. Focus on security, auditability, and user-friendly design and UX.
+Multi-tenant infrastructure & license tracking system. Fully configurable via admin UI, no hardcoded business logic. Focus on security, auditability, and **modern, polished UI/UX**.
 
 ---
 
@@ -10,49 +10,94 @@ Multi-tenant infrastructure & license tracking system. Fully configurable via ad
 |-------|------------|
 | Framework | Next.js 14+ (App Router) |
 | Language | TypeScript (strict, no `any`) |
-| Styling | TailwindCSS + shadcn/ui (sky theme) |
+| Styling | TailwindCSS + shadcn/ui |
 | Database | SQLite via Prisma (`/data/sentinel.db`) |
 | Auth | NextAuth.js (Google Provider, domain-restricted) |
 | Testing | Vitest (≥80% coverage) |
-| Project Mgmt | GitHub Issues + MCP |
+| MCP Tools | GitHub Official + shadcn |
 
 ---
 
-## GitHub Project Management (MCP)
+## MCP Tools
 
-Use the **github-official** MCP server to manage issues and track progress.
-
-### Issue Operations
+### GitHub (Issue Tracking)
 ```typescript
-// List issues by phase
-mcp_mcp_docker_list_issues({ owner, repo, labels: ["Phase 2"], state: "OPEN" })
+// List issues
+mcp_mcp_docker_list_issues({ owner: "user", repo: "sentinel", labels: ["phase:2"], state: "OPEN" })
 
-// Close completed issues
+// Close issue
 mcp_mcp_docker_issue_write({ owner, repo, issue_number, method: "update", state: "closed", state_reason: "completed" })
-
-// Add completion comment
-mcp_mcp_docker_add_issue_comment({ owner, repo, issue_number, body: "Completed in commit xyz" })
-
-// Search issues
-mcp_mcp_docker_search_issues({ owner, repo, query: "label:phase:2-settings state:open" })
 ```
 
-### Phase Labels
-| Label | Description |
-|-------|-------------|
-| `phase:1-foundation` | Next.js, Prisma, Auth, Encryption |
-| `phase:2-settings` | Settings service, Lookups API |
-| `phase:3-services` | Audit service, validation schemas |
-| `phase:4-crud` | Entity CRUD operations |
-| `phase:5-notifications` | Email/Slack alerts |
-| `phase:6-admin` | Admin UI features |
-| `phase:7-polish` | Tests, security, CI/CD |
+### shadcn (UI Components)
+Use shadcn MCP to discover and implement modern UI patterns:
+```typescript
+// List available components and blocks
+mcp_shadcn_list_items_in_registries({ registries: ["@shadcn"] })
 
-### Workflow
-1. Before starting work: Check open issues for current phase
-2. After completing task: Close issue with `state_reason: "completed"`
-3. Add comment referencing commit hash
-4. Push code and update README status
+// View component details
+mcp_shadcn_view_items_in_registries({ items: ["@shadcn/sidebar-07"] })
+
+// Get examples
+mcp_shadcn_get_item_examples_from_registries({ items: ["@shadcn/form-rhf-switch"], registries: ["@shadcn"] })
+
+// Add components
+mcp_shadcn_get_add_command_for_items({ items: ["@shadcn/button", "@shadcn/card"] })
+```
+
+**Key shadcn blocks to reference:**
+- `sidebar-07` — Collapsible icon sidebar
+- `login-03` — Clean login page with muted background
+- `dashboard-01` — Dashboard with charts and tables
+- `form-rhf-*` — React Hook Form examples
+
+---
+
+## UI/UX Standards
+
+### Design Principles
+1. **Modern & Clean**: No cluttered layouts, generous whitespace
+2. **Consistent Spacing**: Use `space-y-6` for form sections, `gap-6` for grids
+3. **Visual Hierarchy**: Clear headings, subtle borders, proper contrast
+4. **Responsive**: Mobile-first, works on all screen sizes
+
+### Component Guidelines
+```tsx
+// Forms: Use shadcn Form with proper spacing
+<Form {...form}>
+  <form className="space-y-6">
+    <FormField
+      control={form.control}
+      name="fieldName"
+      render={({ field }) => (
+        <FormItem className="space-y-2">
+          <FormLabel>Label</FormLabel>
+          <FormControl>
+            <Input {...field} />
+          </FormControl>
+          <FormDescription>Helper text</FormDescription>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </form>
+</Form>
+
+// Cards: Rounded corners, subtle shadows
+<Card className="rounded-xl border-border/50 shadow-sm">
+
+// Info boxes: Muted background with border
+<div className="rounded-xl border bg-muted/30 p-4">
+
+// Switch toggles in forms
+<FormItem className="flex items-center justify-between rounded-xl border bg-muted/30 p-4">
+```
+
+### Layout Patterns
+- **Sidebar**: Collapsible with icon mode, sticky header
+- **Page Header**: Title + description + breadcrumbs
+- **Content Area**: `max-w-3xl` for forms, full-width for tables
+- **Tabs**: Grid layout (`grid-cols-4`), rounded triggers
 
 ---
 
@@ -68,7 +113,8 @@ mcp_mcp_docker_search_issues({ owner, repo, query: "label:phase:2-settings state
     /credentials
     /firewall-rules
     /audit-logs         # ADMIN only
-    /settings           # ADMIN only (org config, lookups)
+    /settings           # ADMIN only (org config, entities)
+      /entities         # Manage lookup tables
   /api                  # Route handlers
     /auth/[...nextauth]
     /customers
@@ -221,7 +267,7 @@ requireAuth(session: Session): void
 
 | Role | Permissions |
 |------|-------------|
-| ADMIN | Full access, Settings, Lookups, Integrations, Audit Logs |
+| ADMIN | Full access, Settings, Entities, Integrations, Audit Logs |
 | USER | CRUD on Customers, Servers, Components, Licenses, Credentials, FirewallRules |
 
 ---
@@ -304,21 +350,6 @@ export async function POST(req: Request) {
 
 ---
 
-## UI Standards
-
-### Components (shadcn/ui only)
-- Forms: `Form`, `FormField`, `Input`, `Select`, `Button`
-- Tables: `DataTable` with sorting, filtering, pagination
-- Feedback: `Toast`, `AlertDialog` for confirmations
-- Layout: `Card`, `Tabs`, `Sheet` for sidepanels
-
-### Form Validation
-- Zod schemas in `/lib/validations/`
-- Client + server validation
-- Display inline errors
-
----
-
 ## Testing Requirements
 
 ### Must Test (`/tests/`)
@@ -367,7 +398,7 @@ CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
 ## Implementation Order
 
 1. **Foundation**: Next.js setup, Prisma schema, auth (NextAuth + Google + domain check)
-2. **Settings & Lookups**: Org config, seed default lookups (Products, Environments, etc.)
+2. **Settings & Entities**: Org config, seed default entities (Products, Environments, etc.)
 3. **Core Services**: Encryption, RBAC middleware, Audit logging
 4. **CRUD Entities**: Customers → Servers → Components → Credentials → Licenses → FirewallRules
 5. **Notifications**: License expiry check, Email/Slack integration

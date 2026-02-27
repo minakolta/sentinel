@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Building2,
+  Users,
   Server,
-  Key,
-  Shield,
-  FileKey,
+  KeyRound,
+  ShieldCheck,
+  FileKey2,
   LayoutDashboard,
   Settings,
-  ScrollText,
-  ChevronUp,
-  User2,
+  ClipboardList,
+  ChevronsUpDown,
+  LogOut,
+  Database,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -26,17 +28,20 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession, signOut } from "next-auth/react";
 import { Role } from "@/lib/auth";
+import { useBranding } from "@/lib/branding";
 
 const mainNavItems = [
   {
@@ -47,7 +52,7 @@ const mainNavItems = [
   {
     title: "Customers",
     url: "/customers",
-    icon: Building2,
+    icon: Users,
   },
   {
     title: "Servers",
@@ -57,17 +62,17 @@ const mainNavItems = [
   {
     title: "Licenses",
     url: "/licenses",
-    icon: FileKey,
+    icon: FileKey2,
   },
   {
     title: "Credentials",
     url: "/credentials",
-    icon: Key,
+    icon: KeyRound,
   },
   {
     title: "Firewall Rules",
     url: "/firewall-rules",
-    icon: Shield,
+    icon: ShieldCheck,
   },
 ];
 
@@ -75,18 +80,25 @@ const adminNavItems = [
   {
     title: "Audit Logs",
     url: "/audit-logs",
-    icon: ScrollText,
+    icon: ClipboardList,
+  },
+  {
+    title: "Entities",
+    url: "/settings/entities",
+    icon: Database,
   },
   {
     title: "Settings",
     url: "/settings",
     icon: Settings,
+    exactMatch: true,
   },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const branding = useBranding();
   const isAdmin = session?.user?.role === Role.ADMIN;
 
   const getInitials = (name: string | null | undefined) => {
@@ -100,18 +112,26 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border">
+    <Sidebar collapsible="icon" className="border-r-0">
+      <SidebarHeader className="h-14 border-b">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild className="hover:bg-transparent">
               <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Shield className="size-4" />
-                </div>
+                {branding.logo ? (
+                  <img 
+                    src={branding.logo} 
+                    alt={branding.name} 
+                    className="size-8 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-sm">
+                    <Sparkles className="size-4" />
+                  </div>
+                )}
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Sentinel</span>
-                  <span className="text-xs text-muted-foreground">Infrastructure Tracker</span>
+                  <span className="font-semibold tracking-tight">{branding.name}</span>
+                  <span className="text-[11px] text-muted-foreground">Infrastructure Tracker</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -119,14 +139,20 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
+      <SidebarContent className="gap-0">
+        <SidebarGroup className="py-4">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+            Navigation
+          </SidebarGroupLabel>
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="gap-1">
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={pathname === item.url}
+                    className="h-9 rounded-lg data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium"
+                  >
                     <Link href={item.url}>
                       <item.icon className="size-4" />
                       <span>{item.title}</span>
@@ -139,65 +165,83 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Administration</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminNavItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)}>
-                      <Link href={item.url}>
-                        <item.icon className="size-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+          <SidebarGroup className="py-4 border-t">
+            <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+              Administration
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="px-2">
+              <SidebarMenu className="gap-1">
+                {adminNavItems.map((item) => {
+                  const isActive = item.exactMatch 
+                    ? pathname === item.url 
+                    : pathname.startsWith(item.url);
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive}
+                        className="h-9 rounded-lg data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium"
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
+      <SidebarFooter className="border-t p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="h-12 rounded-lg data-[state=open]:bg-accent"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
+                  <Avatar className="h-8 w-8 rounded-lg ring-2 ring-background">
                     <AvatarImage src={session?.user?.image ?? undefined} alt={session?.user?.name ?? "User"} />
-                    <AvatarFallback className="rounded-lg">
+                    <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-xs font-medium">
                       {getInitials(session?.user?.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{session?.user?.name}</span>
+                    <span className="truncate font-medium">{session?.user?.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {session?.user?.email}
                     </span>
                   </div>
-                  <ChevronUp className="ml-auto size-4" />
+                  <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl"
                 side="top"
                 align="end"
-                sideOffset={4}
+                sideOffset={8}
               >
-                <DropdownMenuItem className="gap-2" disabled>
-                  <User2 className="size-4" />
-                  <span>{session?.user?.role}</span>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{session?.user?.name}</p>
+                    <p className="text-xs text-muted-foreground">{session?.user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                  Role: {session?.user?.role}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="gap-2"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
                   onClick={() => signOut({ callbackUrl: "/login" })}
                 >
+                  <LogOut className="mr-2 size-4" />
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -205,6 +249,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

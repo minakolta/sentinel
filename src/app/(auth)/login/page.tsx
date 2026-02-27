@@ -5,8 +5,9 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield } from "lucide-react";
+import { Sparkles, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBranding } from "@/lib/branding";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -28,15 +29,16 @@ function LoginForm() {
   const errorMessage = getErrorMessage(error);
 
   return (
-    <>
+    <div className="grid gap-6">
       {errorMessage && (
-        <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-          {errorMessage}
+        <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <p>{errorMessage}</p>
         </div>
       )}
       <Button
-        variant="outline"
-        className="w-full"
+        size="lg"
+        className="w-full h-11 font-medium"
         onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
       >
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -57,43 +59,63 @@ function LoginForm() {
             fill="#EA4335"
           />
         </svg>
-        Sign in with Google
+        Continue with Google
       </Button>
       <p className="text-center text-xs text-muted-foreground">
         Only authorized email domains can sign in.
       </p>
-    </>
+    </div>
   );
 }
 
 function LoginFormSkeleton() {
   return (
-    <>
-      <Skeleton className="h-10 w-full" />
+    <div className="grid gap-6">
+      <Skeleton className="h-11 w-full" />
       <Skeleton className="h-4 w-48 mx-auto" />
-    </>
+    </div>
   );
 }
 
 export default function LoginPage() {
+  const branding = useBranding();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Shield className="h-6 w-6" />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-muted/50 via-background to-background p-4">
+      <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
+      <div className="relative">
+        <Card className="w-full max-w-[400px] border-border/50 shadow-xl">
+          <CardHeader className="space-y-4 text-center pb-8">
+            <div className="flex justify-center">
+              {branding.logo ? (
+                <img 
+                  src={branding.logo} 
+                  alt={branding.name}
+                  className="h-14 w-14 rounded-2xl object-cover shadow-lg ring-4 ring-background"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg ring-4 ring-background">
+                  <Sparkles className="h-7 w-7" />
+                </div>
+              )}
             </div>
-          </div>
-          <CardTitle className="text-2xl">Sentinel</CardTitle>
-          <CardDescription>Infrastructure & License Tracking</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <Suspense fallback={<LoginFormSkeleton />}>
-            <LoginForm />
-          </Suspense>
-        </CardContent>
-      </Card>
+            <div className="space-y-1.5">
+              <CardTitle className="text-2xl font-bold tracking-tight">{branding.name}</CardTitle>
+              <CardDescription className="text-sm">
+                Infrastructure & License Tracking
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="pb-8">
+            <Suspense fallback={<LoginFormSkeleton />}>
+              <LoginForm />
+            </Suspense>
+          </CardContent>
+        </Card>
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Secure multi-tenant platform for managing your infrastructure
+        </p>
+      </div>
     </div>
   );
 }
