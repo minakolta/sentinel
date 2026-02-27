@@ -1,0 +1,199 @@
+// Sentinel Database Schema
+// Infrastructure & License Tracking System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// LOOKUP TABLES (Admin-configurable)
+// =============================================================================
+
+model Product {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  licenses  License[]
+}
+
+model Environment {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  servers   Server[]
+  licenses  License[]
+}
+
+model OperatingSystem {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  servers   Server[]
+}
+
+model ComponentType {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  createdAt  DateTime    @default(now())
+  components Component[]
+}
+
+model LicenseType {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  isJwt     Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  licenses  License[]
+}
+
+// =============================================================================
+// CORE ENTITIES
+// =============================================================================
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  image     String?
+  role      String     @default("USER")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  auditLogs AuditLog[]
+}
+
+model Customer {
+  id              String         @id @default(cuid())
+  name            String
+  code            String         @unique
+  contacts        String?
+  projectManagers String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  servers         Server[]
+  licenses        License[]
+  credentials     Credential[]
+  firewallRules   FirewallRule[]
+}
+
+model Server {
+  id            String          @id @default(cuid())
+  hostname      String
+  ip            String
+  role          String?
+  customerId    String
+  customer      Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  osId          String
+  os            OperatingSystem @relation(fields: [osId], references: [id])
+  environmentId String
+  environment   Environment     @relation(fields: [environmentId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  components    Component[]
+  credentials   Credential[]
+
+  @@unique([customerId, hostname])
+}
+
+model Component {
+  id        String        @id @default(cuid())
+  serverId  String
+  server    Server        @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  typeId    String
+  type      ComponentType @relation(fields: [typeId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([serverId, typeId])
+}
+
+model License {
+  id               String            @id @default(cuid())
+  customerId       String
+  customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product           @relation(fields: [productId], references: [id])
+  typeId           String
+  type             LicenseType       @relation(fields: [typeId], references: [id])
+  environmentId    String
+  environment      Environment       @relation(fields: [environmentId], references: [id])
+  encryptedValue   String
+  expiresAt        DateTime
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  notificationLogs NotificationLog[]
+}
+
+model Credential {
+  id              String   @id @default(cuid())
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  serverId        String?
+  server          Server?  @relation(fields: [serverId], references: [id], onDelete: SetNull)
+  username        String
+  encryptedSecret String
+  url             String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model FirewallRule {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  srcRole    String?
+  srcIp      String
+  dstRole    String?
+  dstIp      String
+  port       Int
+  protocol   String   @default("TCP")
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// =============================================================================
+// SYSTEM TABLES
+// =============================================================================
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  entity    String
+  entityId  String
+  action    String
+  before    String?
+  after     String?
+  timestamp DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([timestamp])
+}
+
+model NotificationLog {
+  id               String   @id @default(cuid())
+  licenseId        String
+  license          License  @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  channel          String
+  daysBeforeExpiry Int
+  sentAt           DateTime @default(now())
+
+  @@unique([licenseId, channel, daysBeforeExpiry])
+}
