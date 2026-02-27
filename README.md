@@ -24,6 +24,18 @@ Infrastructure & license tracking system for on-premise deployments. Fully confi
 | Auth | NextAuth.js (Google SSO, domain-restricted) |
 | Testing | Vitest |
 
+## Development Status
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| 1. Foundation | ✅ Complete | Next.js, Prisma, Auth, Encryption, RBAC, Layout |
+| 2. Settings & Lookups | 🔄 Next | Settings service, Lookups API, Admin UI |
+| 3. Core Services | ⏳ Pending | Audit service, validation schemas |
+| 4. CRUD Entities | ⏳ Pending | Customers, Servers, Licenses, Credentials |
+| 5. Notifications | ⏳ Pending | Email/Slack alerts, expiry checks |
+| 6. Admin Features | ⏳ Pending | Settings page, Audit log viewer |
+| 7. Polish & Testing | ⏳ Pending | Tests, error handling, edge cases |
+
 ## Quick Start
 
 ### Prerequisites
