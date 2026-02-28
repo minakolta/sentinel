@@ -9,7 +9,7 @@ interface RouteParams {
   params: Promise<{ type: string }>;
 }
 
-// GET /api/lookups/[type] - List all items
+// GET /api/entities/[type] - List all items
 export async function GET(request: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,7 +32,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 }
 
-// POST /api/lookups/[type] - Create new item (ADMIN only)
+// POST /api/entities/[type] - Create new item (ADMIN only)
 export async function POST(request: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);

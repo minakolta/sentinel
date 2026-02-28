@@ -1,60 +1,38 @@
 "use client";
 
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-
-interface BreadcrumbItemType {
-  label: string;
-  href?: string;
-}
-
 interface PageHeaderProps {
   title: string;
   description?: string;
-  breadcrumbs?: BreadcrumbItemType[];
   actions?: React.ReactNode;
 }
 
-export function PageHeader({ title, description, breadcrumbs, actions }: PageHeaderProps) {
+/**
+ * Simple page header with title and optional actions.
+ * Used at the top of page content (not navigation).
+ */
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
-      
-      {breadcrumbs && breadcrumbs.length > 0 ? (
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((item, index) => (
-              <BreadcrumbItem key={index}>
-                {index > 0 && <BreadcrumbSeparator />}
-                {item.href ? (
-                  <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
-      ) : (
-        <div className="flex flex-1 items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold">{title}</h1>
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
-            )}
-          </div>
-          {actions && <div className="flex items-center gap-2">{actions}</div>}
-        </div>
-      )}
-    </header>
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-4 border-b">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
+      {actions && <div className="flex items-center gap-2 mt-4 sm:mt-0">{actions}</div>}
+    </div>
+  );
+}
+
+/**
+ * Container component for consistent page content width
+ */
+export function PageContainer({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <main className={`flex-1 px-4 py-6 md:px-6 lg:px-8 ${className || ""}`}>
+      <div className="mx-auto max-w-screen-xl">
+        {children}
+      </div>
+    </main>
   );
 }

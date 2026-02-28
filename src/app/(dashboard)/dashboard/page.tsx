@@ -1,13 +1,17 @@
-import { Header } from "@/components/layout";
+import { PageHeader, PageContainer } from "@/components/layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Server, FileKey2, AlertTriangle, TrendingUp, Activity, Clock } from "lucide-react";
 
 export default function DashboardPage() {
   return (
-    <>
-      <Header title="Dashboard" description="Overview of your infrastructure" />
-      <main className="flex flex-1 flex-col gap-6 p-6">
-        {/* Stats Grid */}
+    <PageContainer>
+      <div className="space-y-6">
+        <PageHeader
+          title="Dashboard"
+          description="Overview of your infrastructure"
+        />
+
+      {/* Stats Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="relative overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -117,7 +121,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </>
+      </div>
+    </PageContainer>
   );
 }

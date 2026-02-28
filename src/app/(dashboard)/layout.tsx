@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar, SidebarTrigger } from "@/components/layout";
+import { TopNav } from "@/components/layout/top-nav";
 
 export default async function DashboardLayout({
   children,
@@ -16,10 +15,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarTrigger />
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <div className="min-h-screen flex flex-col">
+      <TopNav />
+      <div className="flex-1 flex flex-col">{children}</div>
+    </div>
   );
 }

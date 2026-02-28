@@ -69,14 +69,32 @@ export function useBranding() {
 }
 
 function updateFavicon(logoDataUrl: string) {
-  // Remove existing favicon links
-  const existingLinks = document.querySelectorAll('link[rel*="icon"]');
-  existingLinks.forEach((link) => link.remove());
+  // Use requestIdleCallback or setTimeout to avoid React reconciliation conflicts
+  const update = () => {
+    try {
+      // Remove existing favicon links safely
+      const existingLinks = document.querySelectorAll('link[rel*="icon"]');
+      existingLinks.forEach((link) => {
+        if (link.parentNode) {
+          link.parentNode.removeChild(link);
+        }
+      });
 
-  // Add new favicon
-  const link = document.createElement("link");
-  link.rel = "icon";
-  link.type = "image/png";
-  link.href = logoDataUrl;
-  document.head.appendChild(link);
+      // Add new favicon
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.type = "image/png";
+      link.href = logoDataUrl;
+      document.head.appendChild(link);
+    } catch {
+      // Silently fail if DOM manipulation fails
+    }
+  };
+
+  // Defer to avoid conflicts with React's render cycle
+  if (typeof requestIdleCallback !== "undefined") {
+    requestIdleCallback(update);
+  } else {
+    setTimeout(update, 0);
+  }
 }

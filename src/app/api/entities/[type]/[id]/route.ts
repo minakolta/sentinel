@@ -9,7 +9,7 @@ interface RouteParams {
   params: Promise<{ type: string; id: string }>;
 }
 
-// GET /api/lookups/[type]/[id] - Get single item
+// GET /api/entities/[type]/[id] - Get single item
 export async function GET(request: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -37,7 +37,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 }
 
-// PATCH /api/lookups/[type]/[id] - Update item (ADMIN only)
+// PATCH /api/entities/[type]/[id] - Update item (ADMIN only)
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -92,7 +92,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 }
 
-// DELETE /api/lookups/[type]/[id] - Delete item (ADMIN only)
+// DELETE /api/entities/[type]/[id] - Delete item (ADMIN only)
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);

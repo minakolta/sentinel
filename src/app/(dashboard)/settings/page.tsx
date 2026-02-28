@@ -10,7 +10,7 @@ import { AlertSettingsForm } from "@/components/forms/settings/alert-settings-fo
 import { SmtpSettingsForm } from "@/components/forms/settings/smtp-settings-form";
 import { SlackSettingsForm } from "@/components/forms/settings/slack-settings-form";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Header } from "@/components/layout";
+import { PageHeader, PageContainer } from "@/components/layout";
 import { cn } from "@/lib/utils";
 import { Building2, Bell, Mail, MessageSquare } from "lucide-react";
 
@@ -88,10 +88,15 @@ export default function SettingsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <>
-        <Header title="Settings" description="Manage organization and integrations" />
-        <SettingsPageSkeleton />
-      </>
+      <PageContainer>
+        <div className="space-y-6">
+          <PageHeader
+            title="Settings"
+            description="Manage organization and integrations"
+          />
+          <SettingsPageSkeleton />
+        </div>
+      </PageContainer>
     );
   }
 
@@ -100,10 +105,13 @@ export default function SettingsPage() {
   }
 
   return (
-    <>
-      <Header title="Settings" description="Manage organization and integrations" />
-      <div className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-5xl p-6">
+    <PageContainer>
+      <div className="space-y-6">
+        <PageHeader
+          title="Settings"
+          description="Manage organization and integrations"
+        />
+        <div className="mx-auto max-w-5xl">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
             {/* Side Navigation */}
             <nav className="w-full md:w-56 md:shrink-0">
@@ -224,36 +232,34 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </>
+    </PageContainer>
   );
 }
 
 function SettingsPageSkeleton() {
   return (
-    <div className="flex-1 overflow-auto">
-      <div className="mx-auto max-w-5xl p-6">
-        <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-          <div className="w-full md:w-56 md:shrink-0">
-            <div className="flex gap-1 md:flex-col md:space-y-2">
-              <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
-              <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
-              <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
-              <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
-            </div>
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
+        <div className="w-full md:w-56 md:shrink-0">
+          <div className="flex gap-1 md:flex-col md:space-y-2">
+            <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
+            <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
+            <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
+            <Skeleton className="h-12 w-28 md:w-full rounded-lg" />
           </div>
-          <div className="flex-1">
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-40" />
-                <Skeleton className="h-4 w-80" />
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-32" />
-              </CardContent>
-            </Card>
-          </div>
+        </div>
+        <div className="flex-1">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-80" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-32" />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

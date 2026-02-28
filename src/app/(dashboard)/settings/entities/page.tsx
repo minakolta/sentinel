@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LookupTable } from "@/components/tables/lookup-table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Header } from "@/components/layout";
+import { PageHeader, PageContainer } from "@/components/layout";
 import { Package, Layers, Monitor, Boxes, KeyRound } from "lucide-react";
 import type { LookupType } from "@/lib/validations/lookups";
 
@@ -95,7 +95,7 @@ export default function ReferenceDataPage() {
 
       const results = await Promise.all(
         types.map(async (type) => {
-          const res = await fetch(`/api/lookups/${type}`);
+          const res = await fetch(`/api/entities/${type}`);
           if (!res.ok) throw new Error(`Failed to fetch ${type}`);
           const data = await res.json();
           return { type, data };
@@ -125,7 +125,7 @@ export default function ReferenceDataPage() {
 
   const fetchLookup = async (type: LookupType) => {
     try {
-      const res = await fetch(`/api/lookups/${type}`);
+      const res = await fetch(`/api/entities/${type}`);
       if (!res.ok) throw new Error(`Failed to fetch ${type}`);
       const data = await res.json();
       setLookups((prev) => ({ ...prev, [type]: data }));
@@ -137,7 +137,7 @@ export default function ReferenceDataPage() {
 
   const handleCreate = async (type: LookupType, data: { name: string; order?: number; isJwt?: boolean }) => {
     try {
-      const res = await fetch(`/api/lookups/${type}`, {
+      const res = await fetch(`/api/entities/${type}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -162,7 +162,7 @@ export default function ReferenceDataPage() {
     data: { name?: string; order?: number; isJwt?: boolean }
   ) => {
     try {
-      const res = await fetch(`/api/lookups/${type}/${id}`, {
+      const res = await fetch(`/api/entities/${type}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -183,7 +183,7 @@ export default function ReferenceDataPage() {
 
   const handleDelete = async (type: LookupType, id: string) => {
     try {
-      const res = await fetch(`/api/lookups/${type}/${id}`, {
+      const res = await fetch(`/api/entities/${type}/${id}`, {
         method: "DELETE",
       });
 
@@ -202,10 +202,15 @@ export default function ReferenceDataPage() {
 
   if (status === "loading" || loading) {
     return (
-      <>
-        <Header title="Entities" description="Manage configurable dropdown values" />
-        <ReferenceDataPageSkeleton />
-      </>
+      <PageContainer>
+        <div className="space-y-6">
+          <PageHeader
+            title="Entities"
+            description="Manage configurable dropdown values"
+          />
+          <ReferenceDataPageSkeleton />
+        </div>
+      </PageContainer>
     );
   }
 
@@ -214,11 +219,13 @@ export default function ReferenceDataPage() {
   }
 
   return (
-    <>
-      <Header title="Entities" description="Manage configurable dropdown values" />
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-5xl p-6">
-
+    <PageContainer>
+      <div className="space-y-6">
+        <PageHeader
+          title="Entities"
+          description="Manage configurable dropdown values"
+        />
+        <div className="mx-auto max-w-5xl">
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as LookupType)}
@@ -263,28 +270,26 @@ export default function ReferenceDataPage() {
         })}
           </Tabs>
         </div>
-      </main>
-    </>
+      </div>
+    </PageContainer>
   );
 }
 
 function ReferenceDataPageSkeleton() {
   return (
-    <main className="flex-1 overflow-auto">
-      <div className="mx-auto max-w-5xl p-6">
-        <Skeleton className="h-10 w-[500px] mb-6" />
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-4 w-64" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+    <div className="mx-auto max-w-5xl p-6">
+      <Skeleton className="h-10 w-[500px] mb-6" />
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

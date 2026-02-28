@@ -57,14 +57,16 @@ model LicenseType {
 // =============================================================================
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  name      String?
-  image     String?
-  role      String     @default("USER")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  auditLogs AuditLog[]
+  id            String              @id @default(cuid())
+  email         String              @unique
+  name          String?
+  image         String?
+  role          String              @default("USER")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  auditLogs     AuditLog[]
+  projects      Project[]
+  notifications InAppNotification[]
 }
 
 model Customer {
@@ -79,6 +81,21 @@ model Customer {
   licenses        License[]
   credentials     Credential[]
   firewallRules   FirewallRule[]
+  projects        Project[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([customerId, name])
 }
 
 model Server {
@@ -196,4 +213,21 @@ model NotificationLog {
   sentAt           DateTime @default(now())
 
   @@unique([licenseId, channel, daysBeforeExpiry])
+}
+
+model InAppNotification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String    @default("info") // info, warning, error, success
+  linkUrl   String?
+  linkText  String?
+  read      Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, read])
+  @@index([createdAt])
 }

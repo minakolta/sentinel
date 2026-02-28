@@ -1,0 +1,24 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions, requireAuth } from "@/lib/auth";
+import { InAppNotificationService } from "@/server/services/in-app-notification";
+
+export async function POST() {
+  try {
+    const session = await getServerSession(authOptions);
+    requireAuth(session);
+
+    const count = await InAppNotificationService.markAllAsRead(session!.user.id);
+
+    return NextResponse.json({ success: true, count });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("Failed to mark all as read:", error);
+    return NextResponse.json(
+      { error: "Failed to mark all as read" },
+      { status: 500 }
+    );
+  }
+}
